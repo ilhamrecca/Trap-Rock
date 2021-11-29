@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import GameState.GameStateManager;
 import Handlers.Handlers;
 
 public class Display {
@@ -28,6 +29,7 @@ public class Display {
 	private boolean pause;
 	private JOptionPane optionPaneWaiting;
 	private JDialog dialogWaiting;
+
 	public Display(String title, int width, int height) {
 		this.title = title;
 		this.width = width;
@@ -67,12 +69,10 @@ public class Display {
 	public void setHandler(Handlers handler) {
 		this.handler = handler;
 	}
-	
-	public String endGame() {
-		return javax.swing.JOptionPane.showInputDialog("MASUKAN NAMA PLAYER "+ handler.getPlayer());
-	}
 
-	
+	public String endGame() {
+		return javax.swing.JOptionPane.showInputDialog("MASUKAN NAMA PLAYER " + handler.getPlayer());
+	}
 
 	@SuppressWarnings("serial")
 	public void highscore() {
@@ -90,7 +90,6 @@ public class Display {
 		kampret.setModel(defTableModel);
 
 		tabel = new javax.swing.JScrollPane();
-		handler.getDatabase().getData();
 		tabel.setViewportView(kampret);
 
 		frame.add(tabel);
@@ -103,29 +102,26 @@ public class Display {
 
 	public int startServer() {
 		return JOptionPane.showConfirmDialog(frame, "Do you wanna start a server?");
+	}
 
+	public int playAgainConfirmationDialog(String result) {
+		Object[] options = { "Yes, please", "Take Me Home" };
+		int n = JOptionPane.showOptionDialog(frame, result + "\nPlay Again ?", result, JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, // do not use a custom Icon
+				options, // the titles of buttons
+				options[0]); // default button title
+		return n;
 	}
 
 	public void waitingPlayer2() {
-		this.optionPaneWaiting = new JOptionPane("Waiting for player 2 to connect", JOptionPane.INFORMATION_MESSAGE,
-				JOptionPane.DEFAULT_OPTION, null, new Object[] {}, null);
-
-		this.dialogWaiting = new JDialog();
-		dialogWaiting.setTitle("Message");
-		dialogWaiting.setModal(true);
-
-		dialogWaiting.setContentPane(optionPaneWaiting);
-
-		dialogWaiting.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		dialogWaiting.pack();
-
-		dialogWaiting.setVisible(true);
+		handler.getGsm().setState(GameStateManager.LOADINGSCREEN);
 	}
-	
 	public void player2Connected() {
-		dialogWaiting.setVisible(false);
-		optionPaneWaiting.removeAll();
-		dialogWaiting.pack();
+//		dialogWaiting.setVisible(false);
+//		optionPaneWaiting.removeAll();
+//		dialogWaiting.pack();
+//		frame.getContentPane().setVisible(false);
+		handler.getGsm().setState(GameStateManager.PLAYSTATE);
 	}
 
 	public void time() {
@@ -137,12 +133,7 @@ public class Display {
 //			int now = 0;
 			@Override
 			protected Void doInBackground() throws Exception {
-//				int now = 0;
-//				seconds = 0;
-//				minutes = 0;
-				// seconds = 0;
-//				long lastTime;
-//				long currentTime;
+
 				long targetTime;
 
 				targetTime = 999;
@@ -181,8 +172,9 @@ public class Display {
 		timer.execute();
 
 	}
+
 	public String selectServer() {
-		 return JOptionPane.showInputDialog("Enter Server Address");
+		return JOptionPane.showInputDialog("Enter Server Address");
 	}
 
 	public int getSecond() {

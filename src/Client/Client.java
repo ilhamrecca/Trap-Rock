@@ -1,103 +1,93 @@
 package Client;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
+import GameState.GameStateManager;
 import Handlers.Handlers;
 import Server.Packet00Login;
+import Server.Packet01Move;
 
 public class Client extends Thread {
 
-	private InetAddress ipAddress;
-	private DatagramSocket socket;
+	private String ipAddress;
+	private Socket socket;
 	private Handlers handler;
-	public static final String INVALID = "03", LOGIN = "00", MOVE = "01", ENDGAME= "02";
-	public Client(Handlers handler, String ipAddress) {
+	private BufferedReader buffer;
+	private InputStreamReader input;
+	public static final String INVALID = "03", LOGIN = "00", MOVE = "01", ENDGAME = "02";
+
+	public Client(Handlers handler, String ipAddress) throws IOException {
 		this.handler = handler;
 		try {
-			this.socket = new DatagramSocket();
-			this.ipAddress = InetAddress.getByName(ipAddress);
+			System.out.println(ipAddress);
+			socket = new Socket(ipAddress, 1331);
+
 		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void run() {
+		try {
+			input = new InputStreamReader(socket.getInputStream());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		buffer = new BufferedReader(input);
 		while (true) {
-			byte[] data = new byte[1024];
-			DatagramPacket packet = new DatagramPacket(data, data.length);
+
+			String data = "";
 			try {
-				socket.receive(packet);
+				data = buffer.readLine();
 			} catch (IOException e) {
-				e.printStackTrace();
+				// TODO Auto-generated catch block
+//				e.printStackTrace();
 			}
-//			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
-//			System.out.println("Server "+ packet.getAddress()+ " => says "+ new String(packet.getData(), StandardCharsets.UTF_8));
-			String packetData = new String(packet.getData(), StandardCharsets.UTF_8);
-//			System.out.println(packetData);
-			String packetType = packetData.substring(0,2);
-			String player = packetData.substring(2,3);
-//			System.out.println("packet type : " + packetType);
-			switch(packetType) {
-				case LOGIN:
-					player = player.trim(); 
-					if(handler.getPlayer().equalsIgnoreCase(player)) {
-						System.out.println("You're Player "+player+"dfss");
-					}
-					if(player.equalsIgnoreCase("2")) {
-						if(!handler.getPlayer().equalsIgnoreCase(player)) {
-							System.out.println("removing dialog pane");
-							handler.getDisplay().player2Connected();
-							System.out.println("Player 2 has joined the game");
+			if (data.compareTo("") == 0) {
+				System.out.println("dasljkflkasfjlksjkfasdjkl;fdasjkl;f");
+			}
+			if (data != null && data.length() > 1) {
+				String packet = data.substring(0, 2);
+				switch (packet) {
+				case "01":
+					int where = Integer.parseInt(data.substring(2, 3));
+					int to = Integer.parseInt(data.substring(3, 4));
+					handler.getGameView().move(where, to);
+					break;
+				case "00":
+					if (handler.getGsm().getCurrentState() == GameStateManager.LOADINGSCREEN) {
+						handler.getGsm().setState(GameStateManager.PLAYSTATE);
+						Packet00Login packet1 = new Packet00Login("");
+
+						try {
+							packet1.writeData(handler.getClient());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
+
 					}
 					break;
-				case MOVE:
-					packetData = packetData.substring(3);
-					String[] position = packetData.split(",");
-					double x = Double.valueOf(position[0]);
-					double y = Double.valueOf(position[1]);
-//					
-					
-					if(handler.getPlayer().equals("2") && player.equals("1")) {
-						handler.getEntityManager().getPlayer().setX(x);
-						handler.getEntityManager().getPlayer().setY(y);
-					}
-					else if(handler.getPlayer().equals("1") && player.equals("2")) {
-						System.out.println("player 2 set" );
-						System.out.println("position x player 2: " + x);
-						System.out.println("position y player 2: " + y);
-						if(handler.getEntityManager() != null) {
-							if(handler.getEntityManager().getPlayer2() !=null) {
-								handler.getEntityManager().getPlayer2().setX(x);
-								handler.getEntityManager().getPlayer2().setY(y);
-							}
-							
-						}
-						
-					}
-					
+				}
 			}
-			
 		}
 	}
 
-	public void sendData(byte[] data) {
-
-		DatagramPacket packet = new DatagramPacket(data, data.length, ipAddress, 1331);
-		try {
-			socket.send(packet);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+	public void sendData(String data) throws IOException {
+		PrintWriter pr = new PrintWriter(socket.getOutputStream());
+		pr.println(data);
+		pr.flush();
 	}
 
 }

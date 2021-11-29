@@ -1,26 +1,23 @@
 package Handlers;
 
 import Client.Client;
-import Entities.Entity;
-import Entities.EntityManager;
+
 import GameState.GameStateManager;
+import GameState.GameView;
 import GameState.PlayState;
-import Level.Level;
+
 import Main.Display;
 import Server.Server;
-import TileMap.WhiteBlock;
-import Utils.Database;
 
 public class Handlers {
 	private GameStateManager gsm;
-	private Level level;
+
 	private PlayState playState;
-	private WhiteBlock tile;
 	private Display display;
-	Database database;
 	private Client client;
 	private Server server;
 	private String player;
+	private GameView gameView;
 	
 	
 	public String getPlayer() {
@@ -47,13 +44,7 @@ public class Handlers {
 		this.server = server;
 	}
 
-	public Database getDatabase() {
-		return database;
-	}
-
-	public void setDatabase(Database database) {
-		this.database = database;
-	}
+	
 
 	public Display getDisplay() {
 		return display;
@@ -83,24 +74,14 @@ public class Handlers {
 		this.gsm = gsm;
 	}
 
-	public Level getLevel() {
-		return level;
+
+
+	public GameView getGameView() {
+		return gameView;
 	}
 
-	public void setLevel(Level level) {
-		this.level = level;
-	}
-
-	public EntityManager getEntityManager() {
-		return getPlayState().getEntityManager();
-	}
-
-	public WhiteBlock getTile() {
-		return tile;
-	}
-
-	public void setTile(Entity e) {
-		this.tile = (WhiteBlock) e;
+	public void setGameView(GameView gameView) {
+		this.gameView = gameView;
 	}
 
 	

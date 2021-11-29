@@ -12,11 +12,11 @@ import java.awt.image.BufferStrategy;
 import Assets.Assets;
 import Client.Client;
 import GameState.GameStateManager;
+import Handlers.AudioPlayer;
 import Handlers.Handlers;
 import Handlers.Keys;
 import Handlers.Mouse;
 import Server.Server;
-import Utils.Database;
 
 public class GamePanel implements Runnable, KeyListener, MouseListener, MouseMotionListener{
 	
@@ -49,7 +49,7 @@ public class GamePanel implements Runnable, KeyListener, MouseListener, MouseMot
 	private GameStateManager gsm;
 	
 	//database
-	private Database db;
+	
 	
 	//handler
 	Handlers handler;
@@ -74,32 +74,27 @@ public class GamePanel implements Runnable, KeyListener, MouseListener, MouseMot
 //	}
 //	
 	private void init() {
-		
 		display.getFrame().addKeyListener(this);
 		display.getFrame().addMouseListener(this);
 		display.getFrame().addMouseMotionListener(this);
 		display.getCanvas().addMouseListener(this);
 		display.getCanvas().addMouseMotionListener(this);
+		AudioPlayer.init();
+		AudioPlayer.load("Music/menu.mp3", "menu");
+		AudioPlayer.load("Music/gameplay.mp3", "gameplay");
+
 		
 		
 		this.handler = new Handlers(display);
-		db = new Database(handler);
+		handler.getDisplay().time();
 		display.setHandler(handler);
 		running = true;
-		handler.setDatabase(db);
-//		Client client = new Client(handler, "localhost");
-//		
-//		
-//		handler.setClient(client);
-		
-		
-		
 		
 		Assets.init();
 		
-		gsm = new GameStateManager(handler);
+		gsm = new GameStateManager(handler);	
 		
-		
+
 	}
 	
 	@Override
@@ -108,7 +103,7 @@ public class GamePanel implements Runnable, KeyListener, MouseListener, MouseMot
 		
 		long start;
 		long wasted;
-		long wait =0;
+		long wait = 0;
 		
 		while(running) {
 			start = System.nanoTime();
@@ -149,8 +144,6 @@ public class GamePanel implements Runnable, KeyListener, MouseListener, MouseMot
 		//System.out.println(Thread.currentThread().getName() );
 		
 		g = (Graphics2D) bs.getDrawGraphics();
-		
-		
 		g.clearRect(0, 0, WIDTH, HEIGHT);
 		
 		gsm.draw(g);

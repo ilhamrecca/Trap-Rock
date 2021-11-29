@@ -9,20 +9,7 @@ import java.util.stream.Collectors;
 public class Parser {
 	
 	public static String loadFileAsString(String path) throws IOException {
-//		StringBuilder builder = new StringBuilder();
-//		
-//		try {
-//			
-//			BufferedReader br = new BufferedReader(new FileReader(path));
-//			String line;
-//			while((line = br.readLine()) != null) {
-//				builder.append(line+"\n");
-//			}
-//			br.close();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+
 		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 	    try (InputStream is = classLoader.getResourceAsStream(path)) {
 	        if (is == null) return null;

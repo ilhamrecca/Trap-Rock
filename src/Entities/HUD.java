@@ -18,9 +18,7 @@ public class HUD {
 	}
 	
 	public void draw(Graphics2D g) {
-		for(int i = 0; i < Player.getLives(); i++) {
-			g.drawImage(Assets.heart, 10 + i * 50, 20, null);
-		}
+
 		g.setColor(Color.GREEN);
 		g.setFont(font);
 		int second = handler.getDisplay().getSecond();

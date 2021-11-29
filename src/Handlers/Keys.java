@@ -64,7 +64,7 @@ public class Keys {
 		}
 		return false;
 	}
-	
+
 	public static void reset() {
 		for(int i = 0 ; i< keyState.length; i++ ) {
 			keyState[i] = false;

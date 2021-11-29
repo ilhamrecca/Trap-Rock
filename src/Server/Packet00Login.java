@@ -8,8 +8,4 @@ public class Packet00Login extends Packet {
         super("00"+data);
     }
     
-    public Packet00Login(String data, String player,InetAddress ipAddress, int port) {
-    	super("00"+player+data, ipAddress, port);
-    }
-
 }
